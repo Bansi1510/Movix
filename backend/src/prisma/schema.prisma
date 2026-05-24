@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum VideoType {
+  FREE
+  PREMIUM
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+model Admin {
+  id String @id @default(cuid())
+
+  email    String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos Video[]
+}
+
+model Video {
+  id String @id @default(cuid())
+
+  title       String
+  description String
+
+  thumbnail   String
+  bannerImage String?
+
+  videoUrl   String
+  trailerUrl String?
+
+  genre    String
+  language String?
+
+  tags String[]
+
+  duration Int
+
+  type VideoType @default(FREE)
+
+  price Float @default(0)
+
+  hasAds Boolean @default(true)
+
+  downloadable Boolean @default(false)
+
+  views Int @default(0)
+
+  isPublished Boolean @default(true)
+
+  uploadedById String
+  uploadedBy   Admin  @relation(fields: [uploadedById], references: [id])
+
+  purchases Purchase[]
+  analytics Analytics[]
+  comments  Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([title])
+  @@index([genre])
+  @@index([type])
+}
+
+model Purchase {
+  id String @id @default(cuid())
+
+  email String
+
+  amount Float
+
+  razorpayOrderId   String  @unique
+  razorpayPaymentId String? @unique
+
+  status PaymentStatus @default(PENDING)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([status])
+}
+
+model Analytics {
+  id String @id @default(cuid())
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  views Int @default(0)
+
+  totalWatchTime Int @default(0)
+
+  completionRate Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([videoId])
+}
+
+model Comment {
+  id String @id @default(cuid())
+
+  username String
+
+  message String
+
+  sentiment Sentiment?
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([videoId])
+}
