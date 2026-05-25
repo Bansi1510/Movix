@@ -42,7 +42,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
 export const getAdminProfile = async (req: Request, res: Response) => {
   try {
-    const id = req.id;
+    const id = req.user.id;
     if (!id) return response(res, 404, "admin not found login again");
 
     const admin = await prisma.admin.findFirst({
@@ -61,3 +61,8 @@ export const getAdminProfile = async (req: Request, res: Response) => {
     return response(res, 502, "server error")
   }
 }
+
+export const getDashboardStats = () => { }
+export const getRevenueStats = () => { }
+export const getTopVideos = () => { }
+export const getRecentUploads = () => { }
