@@ -1,5 +1,11 @@
 node_modules
-# Keep environment variables out of version control
+dist
 .env
 
-/generated/prisma
+src/uploads
+
+postgres_data
+
+.prisma
+
+Dockerfile.dev

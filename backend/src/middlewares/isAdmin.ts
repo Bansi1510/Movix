@@ -6,7 +6,7 @@ const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const adminId = req.cookies.id;
 
-    if (!adminId) return response(res, 404, 'admin id not found');
+    if (!adminId) return response(res, 401, 'admin id not found');
     const decoded = verifyToken(adminId);
 
     req.user.id = decoded.id;
