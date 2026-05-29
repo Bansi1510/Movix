@@ -1,7 +1,8 @@
 import express from "express"
 import { upload } from "../middlewares/multer.middleware";
-import { deleteVideo, getAllVideos, getVideoById, updateVideo, uploadVideo } from "../controllers/video.controller";
+import { commentOnVideo, deleteVideo, getAllVideos, getVideoById, incrementViewCount, likeVideo, updateVideo, uploadVideo } from "../controllers/video.controller";
 import isAdmin from "../middlewares/isAdmin";
+import isLoggedInUser from "../middlewares/isLoggedInUser";
 
 const videoRouter = express();
 
@@ -34,6 +35,8 @@ videoRouter.put(
 );
 
 videoRouter.delete("/:videoId", deleteVideo);
-
+videoRouter.post("/:videoId/view", incrementViewCount);
+videoRouter.post("/:videoId/like", isLoggedInUser, likeVideo);
+videoRouter.post("/:videoId/comment", isLoggedInUser, commentOnVideo);
 
 export default videoRouter;
