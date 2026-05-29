@@ -13,22 +13,22 @@ import {
 import isLoggedInUser from "../middlewares/isLoggedInUser";
 import isAdmin from "../middlewares/isAdmin";
 
-const router = Router();
+const paymentRouter = Router();
 
-router.post("/create-order", createOrder);
+paymentRouter.post("/create-order", createOrder);
 
-router.post("/verify", verifyPayment);
+paymentRouter.post("/verify", verifyPayment);
 
-router.get("/my-purchases", isLoggedInUser, getUserPurchases);
+paymentRouter.get("/my-purchases", isLoggedInUser, getUserPurchases);
 
-router.get("/check/:videoId", isLoggedInUser, getPurchaseByVideo);
+paymentRouter.get("/check/:videoId", isLoggedInUser, getPurchaseByVideo);
 
-router.get("/:purchaseId", isLoggedInUser, getPaymentDetails);
+paymentRouter.get("/:purchaseId", isLoggedInUser, getPaymentDetails);
 
-router.get("/admin/all", isAdmin, getAllPayments);
+paymentRouter.get("/admin/all", isAdmin, getAllPayments);
 
-router.patch("/failed/:purchaseId", handlePaymentFailed);
+paymentRouter.patch("/failed/:purchaseId", handlePaymentFailed);
 
-router.post("/refund/:purchaseId", isAdmin, refundPayment);
+paymentRouter.post("/refund/:purchaseId", isAdmin, refundPayment);
 
-export default router;
+export default paymentRouter;
