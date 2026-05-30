@@ -10,7 +10,9 @@ import {
   likeVideoService,
   commentOnVideoService,
   incrementViewService,
+  findExistingLikeService,
 } from "../services/video.service";
+import { adminNamespace, userNamespace } from "../sockets/socket.handler";
 
 // =========================
 // UPLOAD VIDEO
@@ -39,6 +41,8 @@ export const uploadVideo = async (req: Request, res: Response) => {
     }
 
     const newVideo = await createVideoService(req.body, files, adminId);
+
+    adminNamespace.emit("video_uploaded", newVideo);
 
     return response(res, 201, "Video uploaded successfully", newVideo);
   } catch (error) {
@@ -117,32 +121,35 @@ export const deleteVideo = async (req: Request, res: Response) => {
 
 export const likeVideo = async (req: Request, res: Response) => {
   try {
+
     const userId = req.user?.id;
     const { videoId } = req.params;
-    const vId = videoId as string;
-
+    const vId = videoId as string
     if (!userId) {
       return response(res, 401, "Unauthorized");
     }
 
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        userId_videoId: {
-          userId,
-          videoId: vId,
-        },
-      },
-    });
+    const existingLike = await findExistingLikeService(
+      userId,
+      vId
+    );
 
     if (existingLike) {
       return response(res, 400, "Already liked");
     }
 
-    await likeVideoService(userId, vId);
+    const like = await likeVideoService(userId, vId);
 
-    return response(res, 200, "Video liked");
+    userNamespace.to(`video:${videoId}`).emit("video_liked", {
+      videoId,
+      userId,
+    });
+
+    return response(res, 200, "Video liked", like);
+
   } catch (error) {
     console.log(error);
+
     return response(res, 500, "Server error");
   }
 };
@@ -168,6 +175,10 @@ export const commentOnVideo = async (req: Request, res: Response) => {
 
     const comment = await commentOnVideoService(userId, vId, message);
 
+    userNamespace.to(`video:${videoId}`).emit("new_comment", {
+      videoId, comment
+    })
+
     return response(res, 201, "Comment added", comment);
   } catch (error) {
     console.log(error);
@@ -185,10 +196,14 @@ export const incrementViewCount = async (req: Request, res: Response) => {
     const vId = videoId as string;
 
     const updatedVideo = await incrementViewService(vId);
-
+    userNamespace.to(`video:${videoId}`).emit("view_updated", {
+      videoId,
+      views: updatedVideo.views,
+    });
     return response(res, 200, "View updated", {
       views: updatedVideo.views,
     });
+
   } catch (error) {
     console.log(error);
     return response(res, 500, "Server error");

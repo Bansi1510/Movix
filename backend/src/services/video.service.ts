@@ -271,9 +271,22 @@ export const deleteVideoService = async (video: any) => {
 };
 
 // =========================
-// LIKE VIDEO
+// LIKE VIDEO Dislike 
 // =========================
 
+export const findExistingLikeService = async (
+  userId: string,
+  videoId: string
+) => {
+  return await prisma.like.findUnique({
+    where: {
+      userId_videoId: {
+        userId,
+        videoId,
+      },
+    },
+  });
+};
 export const likeVideoService = async (userId: string, videoId: string) => {
   return await prisma.like.create({
     data: {

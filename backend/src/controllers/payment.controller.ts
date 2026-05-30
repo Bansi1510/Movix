@@ -12,6 +12,7 @@ import {
   handlePaymentFailedService,
   refundPaymentService,
 } from "../services/payment.service";
+import { adminNamespace } from "../sockets/socket.handler";
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -49,6 +50,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       videoTitle: data.video?.title || "Premium Video",
     });
 
+    adminNamespace.emit("new_payment", data);
     return response(res, 200, "Payment verified successfully", data);
   } catch (error: unknown) {
     if (error instanceof Error) {
