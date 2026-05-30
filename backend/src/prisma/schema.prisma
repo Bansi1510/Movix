@@ -73,6 +73,8 @@ model Video {
 
   isPublished Boolean @default(true)
 
+  embedding Float[]
+
   uploadedById String
   uploadedBy   Admin  @relation(fields: [uploadedById], references: [id])
 
@@ -96,6 +98,7 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  embedding Float[]
 
   comments  Comment[]
   likes     Like[]
@@ -172,4 +175,13 @@ model Like {
 
   @@unique([userId, videoId])
   @@index([videoId])
+}
+
+model WatchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  videoId   String
+  watchTime Int
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

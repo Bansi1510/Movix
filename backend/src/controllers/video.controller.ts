@@ -11,8 +11,11 @@ import {
   commentOnVideoService,
   incrementViewService,
   findExistingLikeService,
+  getPersonalizedFeed,
+  smartSearchVideos,
 } from "../services/video.service";
 import { adminNamespace, userNamespace } from "../sockets/socket.handler";
+import { updateUserEmbedding } from "../services/userEmedding.service";
 
 // =========================
 // UPLOAD VIDEO
@@ -42,7 +45,7 @@ export const uploadVideo = async (req: Request, res: Response) => {
 
     const newVideo = await createVideoService(req.body, files, adminId);
 
-    adminNamespace.emit("video_uploaded", newVideo);
+    adminNamespace.to(`video:${newVideo.id}`).emit("video_uploaded", newVideo);
 
     return response(res, 201, "Video uploaded successfully", newVideo);
   } catch (error) {
@@ -139,7 +142,7 @@ export const likeVideo = async (req: Request, res: Response) => {
     }
 
     const like = await likeVideoService(userId, vId);
-
+    await updateUserEmbedding(userId);
     userNamespace.to(`video:${videoId}`).emit("video_liked", {
       videoId,
       userId,
@@ -174,7 +177,7 @@ export const commentOnVideo = async (req: Request, res: Response) => {
     }
 
     const comment = await commentOnVideoService(userId, vId, message);
-
+    await updateUserEmbedding(userId);
     userNamespace.to(`video:${videoId}`).emit("new_comment", {
       videoId, comment
     })
@@ -194,8 +197,9 @@ export const incrementViewCount = async (req: Request, res: Response) => {
   try {
     const { videoId } = req.params;
     const vId = videoId as string;
-
+    const userId = req.user.id as string;
     const updatedVideo = await incrementViewService(vId);
+    await updateUserEmbedding(userId);
     userNamespace.to(`video:${videoId}`).emit("view_updated", {
       videoId,
       views: updatedVideo.views,
@@ -207,5 +211,41 @@ export const incrementViewCount = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     return response(res, 500, "Server error");
+  }
+};
+
+export const feedController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id as string;
+
+    const videos = await getPersonalizedFeed(userId);
+
+    res.json({
+      success: true,
+      data: videos,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to load feed",
+    });
+  }
+};
+
+export const searchController = async (req: Request, res: Response) => {
+  try {
+    const q = req.query.q as string;
+
+    const videos = await smartSearchVideos(q);
+
+    res.json({
+      success: true,
+      data: videos,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Search failed",
+    });
   }
 };
