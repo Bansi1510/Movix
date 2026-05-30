@@ -17,11 +17,7 @@ const transporter = nodemailer.createTransport({
 // SEND EMAIL
 // =========================
 
-export const sendEmail = async (
-  to: string,
-  subject: string,
-  html: string
-) => {
+export const sendEmail = async (to: string, subject: string, html: string) => {
   await transporter.sendMail({
     from: `"Movix" <${process.env.EMAIL_USER}>`,
     to,
@@ -34,10 +30,7 @@ export const sendEmail = async (
 // WELCOME EMAIL
 // =========================
 
-export const sendWelcomeEmail = async (
-  email: string,
-  name?: string
-) => {
+export const sendWelcomeEmail = async (email: string, name?: string) => {
   const html = `
     <div style="font-family: Arial; padding:20px;">
       <h2>Welcome to Movix 🎉</h2>
@@ -58,11 +51,7 @@ export const sendWelcomeEmail = async (
     </div>
   `;
 
-  await sendEmail(
-    email,
-    "Welcome to Movix",
-    html
-  );
+  await sendEmail(email, "Welcome to Movix", html);
 };
 
 // =========================
@@ -116,9 +105,5 @@ export const sendPaymentSuccessEmail = async ({
     </div>
   `;
 
-  await sendEmail(
-    email,
-    "Payment Successful",
-    html
-  );
+  await sendEmail(email, "Payment Successful", html);
 };
