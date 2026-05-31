@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.config";
+import { analyzeUserBehavior } from "./ai.service";
 
 // recompute user embedding based on interactions
 export const updateUserEmbedding = async (userId: string) => {
@@ -47,4 +48,54 @@ export const updateUserEmbedding = async (userId: string) => {
   });
 
   return avg;
+};
+
+
+
+
+export const generateUserInsight = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      likes: {
+        include: {
+          video: true,
+        },
+      },
+      comments: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const genres = user.likes
+    .map((like) => like.video.genre)
+    .filter(Boolean);
+
+  const insight = await analyzeUserBehavior({
+    likes: user.likes.length,
+    comments: user.comments.length,
+    topGenres: genres,
+  });
+
+  return prisma.userInsight.upsert({
+    where: {
+      userId,
+    },
+    update: {
+      interests: insight.interests || [],
+      adCategory: insight.adCategory,
+      contentType: insight.contentType,
+      confidence: insight.confidence,
+    },
+    create: {
+      userId,
+      interests: insight.interests || [],
+      adCategory: insight.adCategory,
+      contentType: insight.contentType,
+      confidence: insight.confidence,
+    },
+  });
 };

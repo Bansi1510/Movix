@@ -100,9 +100,10 @@ model User {
   updatedAt DateTime @updatedAt
   embedding Float[]
 
-  comments  Comment[]
-  likes     Like[]
-  purchases Purchase[]
+  comments    Comment[]
+  likes       Like[]
+  purchases   Purchase[]
+  userInsight UserInsight?
 }
 
 model Purchase {
@@ -184,4 +185,20 @@ model WatchHistory {
   watchTime Int
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model UserInsight {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  interests   String[]
+  adCategory  String?
+  contentType String?
+
+  confidence Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,8 +1,9 @@
 import fs from "fs";
 import cloudinary from "../config/cloudinary.config";
 import { prisma } from "../config/db.config";
-import { getEmbedding } from "./ai.service";
+import { analyzeUserBehavior, getEmbedding } from "./ai.service";
 import { cosineSimilarity } from "../utils/math";
+import { optimizeSEO } from "./ai.service";
 
 
 type VideoFiles = {
@@ -78,6 +79,11 @@ language: ${language || ""}
   // delete local files
   deleteLocalFiles(files);
 
+  const seo = await optimizeSEO({
+    title,
+    description,
+    tags: JSON.parse(tags),
+  });
   // save db
   const newVideo = await prisma.video.create({
     data: {
@@ -387,7 +393,11 @@ export const getPersonalizedFeed = async (userId: string) => {
       comments: true,
     },
   });
-
+  const insight = await prisma.userInsight.findUnique({
+    where: {
+      userId,
+    },
+  });
   const videos = await prisma.video.findMany({
     where: { isPublished: true },
     include: {
@@ -412,16 +422,26 @@ export const getPersonalizedFeed = async (userId: string) => {
       video.likes.length * 2 +
       video.comments.length * 3;
 
+    let interestBoost = 0;
+
+    if (
+      insight?.interests?.some(
+        (interest) =>
+          interest.toLowerCase() === video.genre.toLowerCase()
+      )
+    ) {
+      interestBoost = 20;
+    }
+
     const score =
       similarity * 80 +
-      engagement * 0.2;
+      engagement * 0.2 +
+      interestBoost;
 
     return { ...video, score };
   });
 
-  return scored
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 20);
+
 };
 
 

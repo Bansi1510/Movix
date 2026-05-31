@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
-
+import "dotenv/config";
 import adminRouter from "./routes/admin.routes";
 import videoRouter from "./routes/video.routes";
 import paymentRouter from "./routes/payment.routes";

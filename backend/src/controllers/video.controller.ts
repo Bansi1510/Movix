@@ -99,11 +99,7 @@ export const deleteVideo = async (req: Request, res: Response) => {
     const { videoId } = req.params;
     const vId = videoId as string;
 
-    const video = await prisma.video.findUnique({
-      where: {
-        id: vId,
-      },
-    });
+    const video = getVideoByIdService(vId)
 
     if (!video) {
       return response(res, 404, "Video not found");
