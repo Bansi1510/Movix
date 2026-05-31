@@ -1,68 +1,77 @@
-import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import { prisma } from "../config/db.config";
-import { generateToken } from "../utils/jwt";
+import { NextFunction, Request, Response } from "express";
 import response from "../utils/resHandler";
+import {
+  loginAdminService,
+  getAdminProfileService,
+  generateUserInsightService,
+} from "../services/admin.service";
 
-
-export const loginAdmin = async (req: Request, res: Response) => {
+export const loginAdmin = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) return response(res, 401, "email and password required");
-
-    const admin = await prisma.admin.findFirst({
-      where: {
-        email
-      },
-    });
-
-    if (!admin) return response(res, 402, "admin not found")
-
-    const isMatchPassword = await bcrypt.compare(password, admin.password);
-
-    if (!isMatchPassword) return response(res, 402, "incorrect password");
-
-    const token = generateToken(admin.id, admin.email);
+    const { token, admin } = await loginAdminService(
+      email,
+      password
+    );
 
     res.cookie("admin_token", token, {
       httpOnly: true,
-      secure: false, // set true in production (HTTPS)
+      secure: false,
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return response(res, 200, `welcome ${admin.email}`, { email: admin.email, id: admin.id });
-
-  } catch (error) {
-    console.log(error)
-    return response(res, 502, "server error")
+    return response(
+      res,
+      200,
+      `welcome ${admin.email}`,
+      admin
+    );
+  } catch (error: any) {
+    return response(res, 400, error.message);
   }
-}
+};
 
-export const getAdminProfile = async (req: Request, res: Response) => {
+export const getAdminProfile = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const id = req.user.id;
-    if (!id) return response(res, 404, "admin not found login again");
-
-    const admin = await prisma.admin.findFirst({
-      where: {
-        id
-      },
-      select: {
-        email: true,
-        id: true
-      }
-    });
+    const admin = await getAdminProfileService(
+      req.user?.id!
+    );
 
     return response(res, 200, "", admin);
-  } catch (error) {
-    console.log(error)
-    return response(res, 502, "server error")
+  } catch (error: any) {
+    return response(res, 400, error.message);
   }
-}
+};
 
-export const getDashboardStats = () => { }
-export const getRevenueStats = () => { }
-export const getTopVideos = () => { }
-export const getRecentUploads = () => { }
+export const generateUserInsightController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.params.userId as string;
+
+    const insight = await generateUserInsightService(
+      userId
+    );
+
+    res.status(200).json({
+      success: true,
+      data: insight,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+// export const getDashboardStats = () => { }
+// export const getRevenueStats = () => { }
+// export const getTopVideos = () => { }
+// export const getRecentUploads = () => { }
