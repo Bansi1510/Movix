@@ -1,6 +1,9 @@
 import fs from "fs";
 import cloudinary from "../config/cloudinary.config";
 import { prisma } from "../config/db.config";
+import { getEmbedding } from "./ai.service";
+import { cosineSimilarity } from "../utils/math";
+
 
 type VideoFiles = {
   video?: Express.Multer.File[];
@@ -63,6 +66,14 @@ export const createVideoService = async (
       folder: "movix/banners",
     });
   }
+  const aiText = `
+title: ${title}
+description: ${description}
+genre: ${genre}
+tags: ${tags ? JSON.parse(tags).join(" ") : ""}
+language: ${language || ""}
+`;
+  const embedding = await getEmbedding(aiText);
 
   // delete local files
   deleteLocalFiles(files);
@@ -84,7 +95,7 @@ export const createVideoService = async (
 
       trailerUrl: trailerUpload?.secure_url,
       trailerPublicId: trailerUpload?.public_id,
-
+      embedding,
       genre,
       language,
 
@@ -288,6 +299,7 @@ export const findExistingLikeService = async (
   });
 };
 export const likeVideoService = async (userId: string, videoId: string) => {
+
   return await prisma.like.create({
     data: {
       userId,
@@ -362,4 +374,71 @@ const deleteLocalFiles = (files: VideoFiles) => {
       });
     }
   });
+};
+
+
+
+
+export const getPersonalizedFeed = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      likes: true,
+      comments: true,
+    },
+  });
+
+  const videos = await prisma.video.findMany({
+    where: { isPublished: true },
+    include: {
+      likes: true,
+      comments: true,
+    },
+  });
+
+  // fallback for cold start
+  if (!user?.embedding) {
+    return videos.slice(0, 20);
+  }
+
+  const scored = videos.map((video) => {
+    const similarity =
+      user.embedding && video.embedding
+        ? cosineSimilarity(user.embedding, video.embedding)
+        : 0;
+
+    const engagement =
+      video.views * 0.3 +
+      video.likes.length * 2 +
+      video.comments.length * 3;
+
+    const score =
+      similarity * 80 +
+      engagement * 0.2;
+
+    return { ...video, score };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20);
+};
+
+
+export const smartSearchVideos = async (text: string) => {
+  // 1. Convert query → AI vector
+  const queryEmbedding = await getEmbedding(text);
+
+  // 2. Vector search (REAL AI)
+  const videos = await prisma.$queryRaw`
+   SELECT *,
+1 - (embedding <=> ${queryEmbedding}::vector) as similarity
+FROM "Video"
+WHERE "isPublished" = true
+AND embedding IS NOT NULL
+ORDER BY similarity DESC
+LIMIT 20;
+  `;
+
+  return videos;
 };

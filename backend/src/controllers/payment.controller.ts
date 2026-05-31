@@ -12,7 +12,7 @@ import {
   handlePaymentFailedService,
   refundPaymentService,
 } from "../services/payment.service";
-import { adminNamespace } from "../sockets/socket.handler";
+import { adminNamespace, userNamespace } from "../sockets/socket.handler";
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
@@ -51,6 +51,12 @@ export const verifyPayment = async (req: Request, res: Response) => {
     });
 
     adminNamespace.emit("new_payment", data);
+    userNamespace
+      .to(`user:${data.user.id}`)
+      .emit("payment_success", {
+        videoId: data.video.id,
+        title: data.video.title,
+      });
     return response(res, 200, "Payment verified successfully", data);
   } catch (error: unknown) {
     if (error instanceof Error) {
