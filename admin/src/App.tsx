@@ -1,17 +1,16 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "./features/auth/Login";
 
-const Home = () => <h1>Home Page</h1>;
-const About = () => <h1>About Page</h1>;
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Login />,
   },
   {
-    path: "/about",
-    element: <About />,
+    path: "/login",
+    element: <Login />,
   },
 ]);
 
