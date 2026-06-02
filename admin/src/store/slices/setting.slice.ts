@@ -6,7 +6,7 @@ interface SettingsState {
 }
 
 const initialState: SettingsState = {
-  theme: "light",
+  theme: "dark",
   sidebarCollapsed: false,
 };
 
