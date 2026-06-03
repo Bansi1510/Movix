@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import { useCheckAuth } from "@/hooks/useCheckAuth";
-import { setCredentials } from "@/store/slices/auth.slice";
+import { logout, setCredentials } from "@/store/slices/auth.slice";
 
 const AuthProvider = ({
   children,

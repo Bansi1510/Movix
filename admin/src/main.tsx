@@ -6,24 +6,30 @@ import ReduxProvider from './provides/ReduxProvider.tsx'
 import Layout from './Layout.tsx'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from './lib/queryClient.ts'
 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ReduxProvider>
-      <Layout>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          newestOnTop
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="colored"
+    <QueryClientProvider client={queryClient}>
 
-        />
-        <App />
-      </Layout>
-    </ReduxProvider>
+
+      <ReduxProvider>
+        <Layout>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="colored"
+
+          />
+          <App />
+        </Layout>
+      </ReduxProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )

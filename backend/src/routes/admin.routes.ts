@@ -5,9 +5,10 @@ import isAdmin from "../middlewares/isAdmin";
 const adminRouter = express.Router();
 
 adminRouter.post("/login", loginAdmin);
+adminRouter.get("/check-auth", isAdmin, checkAuthController);
+
 adminRouter.get("/:id", getAdminProfile);
 adminRouter.post("/insights/:userId", isAdmin, generateUserInsightController);
-adminRouter.get("/check-auth", isAdmin, checkAuthController);
 adminRouter.post(
   "/logout",
   logoutAdminController

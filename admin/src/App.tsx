@@ -58,14 +58,12 @@ const router = createBrowserRouter([
 ]);
 
 const App: React.FC = () => {
-
-  return
-  <>
+  return (
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </>
-
+  );
 };
 
 export default App;
+

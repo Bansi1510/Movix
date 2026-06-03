@@ -5,7 +5,7 @@ export const loginApi = async (
   payload: LoginPayload
 ): Promise<LoginResponse> => {
   const { data } = await api.post(
-    "/admin/login",
+    "/api/admin/login",
     payload
   );
 
@@ -15,7 +15,7 @@ export const loginApi = async (
 
 export const checkAuthApi = async () => {
   const { data } = await api.get(
-    "/admin/check-auth"
+    "/api/admin/check-auth"
   );
 
   return data;
@@ -23,7 +23,7 @@ export const checkAuthApi = async () => {
 
 export const logoutApi = async () => {
   const { data } = await api.post(
-    "/admin/logout"
+    "/api/admin/logout"
   );
 
   return data;
