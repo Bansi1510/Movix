@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../config/db.config";
 import { generateToken } from "../utils/jwt";
 import { generateUserInsight } from "./userEmedding.service";
+import jwt from "jsonwebtoken";
+import { Request, Response } from "express";
 
 export const loginAdminService = async (
   email: string,
@@ -59,4 +61,13 @@ export const generateUserInsightService = async (
   userId: string
 ) => {
   return await generateUserInsight(userId);
+};
+export const logoutAdminService = async (
+  res: Response
+) => {
+  res.clearCookie("admin_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
 };

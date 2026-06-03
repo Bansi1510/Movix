@@ -2,8 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Film, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,7 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
+import { useLogin } from "@/hooks/useLogin";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/store/slices/auth.slice";
+import { useNavigate } from "react-router-dom";
+import LoadingButton from "@/components/common/LoadingButton";
+import type { AxiosError } from "axios";
+import { toast } from "react-toastify";
 const loginSchema = z.object({
   email: z
     .string()
@@ -31,9 +35,29 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
-
+  const loginMutation = useLogin();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onSubmit = (values: LoginFormValues) => {
     console.log(values);
+    loginMutation.mutate(values, {
+      onSuccess: (data) => {
+        dispatch(
+          setCredentials(data.admin)
+        );
+        navigate("/dashboard");
+      },
+      onError: (error) => {
+        const axiosError = error as AxiosError<{
+          message: string;
+        }>;
+
+        toast.error(
+          axiosError.response?.data?.message ??
+          "Something went wrong"
+        );
+      },
+    });
   };
 
   return (
@@ -113,9 +137,14 @@ const Login = () => {
               </div>
 
               {/* Button */}
-              <Button type="submit" className="w-full">
+              <LoadingButton
+                type="submit"
+                className="w-full gap-2"
+                loading={loginMutation.isPending}
+                loadingText="Signing In..."
+              >
                 Sign In
-              </Button>
+              </LoadingButton>
             </form>
           </CardContent>
         </Card>

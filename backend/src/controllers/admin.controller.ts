@@ -4,6 +4,8 @@ import {
   loginAdminService,
   getAdminProfileService,
   generateUserInsightService,
+  logoutAdminService,
+
 } from "../services/admin.service";
 
 export const loginAdmin = async (
@@ -67,6 +69,38 @@ export const generateUserInsightController = async (
       success: true,
       data: insight,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const checkAuthController = (
+  req: Request,
+  res: Response
+) => {
+  return response(
+    res,
+    200,
+    "Authenticated",
+    {
+      admin: req.user,
+      authenticated: true,
+    }
+  );
+};
+export const logoutAdminController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await logoutAdminService(res);
+
+    return response(
+      res,
+      200,
+      "Logout successful"
+    );
   } catch (error) {
     next(error);
   }
