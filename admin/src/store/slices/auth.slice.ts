@@ -1,21 +1,14 @@
-import { createSlice, type PayloadAction, } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface Admin {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import type { Admin } from "@/types/auth.types";
 
 interface AuthState {
   admin: Admin | null;
-  accessToken: string | null;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
   admin: null,
-  accessToken: null,
   isAuthenticated: false,
 };
 
@@ -26,24 +19,22 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{
-        admin: Admin;
-        accessToken: string;
-      }>
+      action: PayloadAction<Admin>
     ) => {
-      state.admin = action.payload.admin;
-      state.accessToken = action.payload.accessToken;
+      state.admin = action.payload;
       state.isAuthenticated = true;
     },
 
     logout: (state) => {
       state.admin = null;
-      state.accessToken = null;
       state.isAuthenticated = false;
     },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const {
+  setCredentials,
+  logout,
+} = authSlice.actions;
 
 export default authSlice.reducer;

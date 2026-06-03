@@ -1,12 +1,28 @@
+import { useLogout } from "@/hooks/useLogout";
+import { logout } from "@/store/slices/auth.slice";
 import {
   Film,
   LayoutDashboard,
-  LogOut,
   PlusCircle,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { NavLink, useNavigate } from "react-router-dom";
+import LoadingButton from "../common/LoadingButton";
 
 const Sidebar = () => {
+  const logoutMutation = useLogout();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        dispatch(logout());
+
+        navigate("/login");
+      },
+    });
+  };
   return (
     <aside className="w-72 border-r bg-card">
       <div className="flex h-full flex-col">
@@ -60,10 +76,14 @@ const Sidebar = () => {
         {/* Logout */}
 
         <div className="border-t p-4">
-          <button className="flex w-full items-center gap-3 rounded-xl bg-destructive px-4 py-3 text-destructive-foreground transition">
-            <LogOut size={18} />
+          <LoadingButton
+            variant="destructive"
+            loading={logoutMutation.isPending}
+            loadingText="Logging out..."
+            onClick={handleLogout}
+          >
             Logout
-          </button>
+          </LoadingButton>
         </div>
       </div>
     </aside>
