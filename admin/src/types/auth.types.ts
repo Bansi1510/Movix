@@ -9,6 +9,6 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  token: string;
+  message: string;
   admin: Admin;
 }

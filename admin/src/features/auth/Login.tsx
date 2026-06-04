@@ -45,6 +45,7 @@ const Login = () => {
         dispatch(
           setCredentials(data.admin)
         );
+        toast.success(data.message)
         navigate("/dashboard");
       },
       onError: (error) => {

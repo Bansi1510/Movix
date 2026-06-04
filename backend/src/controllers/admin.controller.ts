@@ -20,10 +20,13 @@ export const loginAdmin = async (
       password
     );
 
+    console.log("🔐 Setting cookie with token:", token.substring(0, 20) + "...");
+    
     res.cookie("admin_token", token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -78,6 +81,7 @@ export const checkAuthController = (
   req: Request,
   res: Response
 ) => {
+  console.log(req.user)
   return response(
     res,
     200,

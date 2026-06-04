@@ -28,14 +28,23 @@ registerSocketEvents(io);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:5173"
+      // process.env.ADMIN_FRONTED!,
+      // process.env.USER_FRONTED!
+    ],
     credentials: true,
   })
 );
+
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.path}`);
+  next();
+});
 
 app.use("/api/admin", adminRouter);
 app.use("/api/video", videoRouter);

@@ -8,8 +8,8 @@ const isAdmin = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.cookies.admin_token;
-
+    const token = req.cookies?.admin_token;
+    console.log("token:", token)
     if (!token) {
       return response(
         res,
