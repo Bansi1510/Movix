@@ -1,19 +1,37 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY!,
 });
+
+// =========================
+// HELPER
+// =========================
+const parseAIJson = (text: string) => {
+  try {
+    const cleaned = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleaned);
+  } catch {
+    return {};
+  }
+};
 
 // =========================
 // EMBEDDING MODEL
 // =========================
-export const getEmbedding = async (text: string) => {
-  const response = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
+export const getEmbedding = async (
+  text: string
+): Promise<number[]> => {
+  const response = await ai.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
   });
 
-  return response.data[0].embedding;
+  return response.embeddings?.[0]?.values ?? [];
 };
 
 // =========================
@@ -33,7 +51,7 @@ Comments: ${data.comments}
 Watch Time: ${data.watchTime || 0}
 Top Genres: ${data.topGenres?.join(", ") || "unknown"}
 
-Return ONLY JSON:
+Return ONLY valid JSON:
 
 {
   "interests": [],
@@ -43,12 +61,12 @@ Return ONLY JSON:
 }
 `;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
   });
 
-  return JSON.parse(response.choices[0].message.content || "{}");
+  return parseAIJson(response.text || "{}");
 };
 
 // =========================
@@ -60,13 +78,18 @@ export const optimizeSEO = async (video: {
   tags: string[];
 }) => {
   const prompt = `
-Improve SEO for video platform:
+Improve SEO for a video streaming platform.
 
 Title: ${video.title}
-Description: ${video.description}
-Tags: ${video.tags.join(", ")}
 
-Return ONLY JSON:
+Description:
+${video.description}
+
+Tags:
+${video.tags.join(", ")}
+
+Return ONLY valid JSON:
+
 {
   "seoTitle": "",
   "seoTags": [],
@@ -74,10 +97,10 @@ Return ONLY JSON:
 }
 `;
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
   });
 
-  return JSON.parse(res.choices[0].message.content || "{}");
+  return parseAIJson(response.text || "{}");
 };
