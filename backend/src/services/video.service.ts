@@ -192,7 +192,6 @@ export const getAllVideosService = async (query: any) => {
       uploadedBy: {
         select: {
           id: true,
-          name: true,
           email: true,
         },
       },
