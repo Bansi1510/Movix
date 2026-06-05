@@ -39,3 +39,8 @@ export const deleteVideo = async (
 
   return data;
 };
+
+export const getVideoById = async (videoId: string) => {
+  const { data } = await api.get(`/api/video/${videoId}`);
+  return data.data;
+};
