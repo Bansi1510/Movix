@@ -15,6 +15,8 @@ export interface SingleVideo {
 
   type: "FREE" | "PREMIUM";
 
+  videoPublicId: string,
+  videoUrl: string,
   price: number;
 
   views: number;

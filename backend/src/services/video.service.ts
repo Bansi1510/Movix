@@ -230,8 +230,12 @@ export const getVideoByIdService = async (videoId: string) => {
       title: true,
       description: true,
 
+
       thumbnail: true,
       bannerImage: true,
+
+      videoPublicId: true,
+      videoUrl: true,
 
       genre: true,
       language: true,
@@ -250,7 +254,6 @@ export const getVideoByIdService = async (videoId: string) => {
       uploadedBy: {
         select: {
           id: true,
-          name: true,
           email: true,
         },
       },

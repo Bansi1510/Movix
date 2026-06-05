@@ -34,12 +34,17 @@ interface VideoCardProps {
   };
 
   onDelete: (id: string) => void;
+  onPlay: (id: string) => void;
 }
 
 const VideoCard = ({
   video,
   onDelete,
+  onPlay
 }: VideoCardProps) => {
+
+
+
   return (
     <div className="group overflow-hidden rounded-xl border bg-card transition-all hover:shadow-lg">
       {/* Thumbnail */}
@@ -48,6 +53,7 @@ const VideoCard = ({
           src={video.thumbnail}
           alt={video.title}
           className="h-52 w-full object-cover"
+          onClick={() => onPlay(video.id)}
         />
 
         {/* Premium Badge */}
