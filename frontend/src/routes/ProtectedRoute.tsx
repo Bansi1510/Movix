@@ -1,15 +1,17 @@
 import { Navigate, Outlet } from "react-router-dom";
-
-import { useProfile } from "@/hooks/useProfile";
+import { RootState } from "@/app/store";
+import { useAppSelector } from "@/app/hooks";
 
 const ProtectedRoute = () => {
-  const { data, isLoading } = useProfile();
+  const { isAuthenticated, isInitialized } = useAppSelector(
+    (state: RootState) => state.auth
+  );
 
-  if (isLoading) {
+  if (!isInitialized) {
     return <div>Loading...</div>;
   }
 
-  return data ? (
+  return isAuthenticated ? (
     <Outlet />
   ) : (
     <Navigate to="/login" replace />
