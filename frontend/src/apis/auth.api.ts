@@ -1,4 +1,4 @@
-import { LoginPayload, LoginResponse } from "@/types/auth.types";
+import { AuthResponse, LoginPayload, LoginResponse, SignUpPayload } from "@/types/auth.types";
 import api from "./baseUrl";
 
 
@@ -11,7 +11,18 @@ export const getProfile = async () => {
 export const loginUser = async (
   payload: LoginPayload
 ): Promise<LoginResponse> => {
-  const { data } = await api.post("/auth/login", payload);
+  const { data } = await api.post("/api/user/login", payload);
   console.log(data)
+  return data;
+};
+
+export const registerUser = async (
+  payload: SignUpPayload
+): Promise<AuthResponse> => {
+  const { data } = await api.post(
+    "/api/user/register",
+    payload
+  );
+
   return data;
 };

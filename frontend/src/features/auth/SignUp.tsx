@@ -17,12 +17,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSignUp } from "@/hooks/useSignIn";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "@/app/slices/auth.slice";
+import { Link, useNavigate } from "react-router-dom";
 
-const SignIn = () => {
+const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -37,9 +42,31 @@ const SignIn = () => {
     },
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    console.log("Signup Data:", data);
+  const { mutate, isPending } = useSignUp();
 
+  const onSubmit = (data: SignUpFormData) => {
+    mutate(
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess: (response) => {
+          dispatch(
+            loginSuccess(response.data.user)
+          );
+
+          navigate("/");
+        },
+
+        onError: (error: any) => {
+          console.log(
+            error?.response?.data?.message
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -204,12 +231,21 @@ const SignIn = () => {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isPending || isSubmitting}
                   className="h-11 w-full"
                 >
-                  {isSubmitting
+                  {isPending
                     ? "Creating Account..."
                     : "Create Account"}
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-11 w-full"
+                >
+                  <Link to="/login">
+                    Already have a Account
+                  </Link>
                 </Button>
               </form>
             </CardContent>
@@ -220,4 +256,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

@@ -2,21 +2,30 @@ import { NextFunction, Request, Response } from "express"
 import response from "../utils/resHandler"
 import { verifyToken } from "../utils/jwt";
 
-const isLoggedInUser = async (req: Request, res: Response, next: NextFunction) => {
+const isLoggedInUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const userId = req.cookies.id;
+    const token = req.cookies.user_token;
 
-    if (!userId) return response(res, 401, 'please login first');
-    const decoded = verifyToken(userId);
+    if (!token) {
+      return response(res, 401, "Please login first");
+    }
 
-    req.user.id = decoded.id;
-    req.user.email = decoded.email;
+    const decoded = verifyToken(token);
+
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+    };
 
     next();
   } catch (error) {
-    console.log(error)
-    return response(res, 502, "server error")
+    console.error(error);
+    return response(res, 500, "Server error");
   }
-}
+};
 
-export default isLoggedInUser;
+export default isLoggedInUser
