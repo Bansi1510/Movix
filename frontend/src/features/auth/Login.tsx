@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLogin } from "@/hooks/useLogin";
 import { toast } from "react-toastify";
 import { loginSuccess } from "@/app/slices/auth.slice";
@@ -40,7 +40,7 @@ const Login = () => {
 
         toast.success(response.message);
 
-        navigate("/dashboard");
+        navigate("/");
       },
 
       onError: (error: any) => {
@@ -154,6 +154,15 @@ const Login = () => {
                   className="h-11 w-full"
                 >
                   {isPending ? "Signing In..." : "Sign In"}
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-11 w-full"
+                >
+                  <Link to="/signup">
+                    Create New Account
+                  </Link>
                 </Button>
               </form>
             </CardContent>

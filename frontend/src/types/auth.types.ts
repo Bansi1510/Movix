@@ -17,3 +17,18 @@ export interface LoginResponse {
     user: User;
   };
 }
+
+export interface SignUpPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    token: string;
+  };
+}

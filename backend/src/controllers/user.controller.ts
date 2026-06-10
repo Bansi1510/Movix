@@ -39,7 +39,13 @@ export const registerUser = async (req: Request, res: Response) => {
     );
     // generate token
     const token = generateToken(user.id, user.email);
-
+    res.cookie("user_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     return response(res, 201, "User registered successfully", {
       user,
       token,
@@ -84,6 +90,13 @@ export const loginUser = async (req: Request, res: Response) => {
     // token
     const token = generateToken(user.id, user.email);
 
+    res.cookie("user_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     return response(res, 200, "Login successful", {
       token,
 
