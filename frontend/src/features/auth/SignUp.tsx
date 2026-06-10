@@ -73,7 +73,7 @@ const SignUp = () => {
     <div className="min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-2">
         <div className="relative hidden overflow-hidden border-r lg:flex items-center justify-center bg-muted/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-primary/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-background to-primary/5" />
 
           <div className="relative z-10 max-w-md px-8 text-center">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary text-primary-foreground shadow-lg">
