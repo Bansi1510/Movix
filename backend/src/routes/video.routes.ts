@@ -1,10 +1,10 @@
 import express from "express"
 import { upload } from "../middlewares/multer.middleware";
-import { commentOnVideo, deleteVideo, getAllVideos, getVideoById, incrementViewCount, likeVideo, uploadVideo } from "../controllers/video.controller";
+import { commentOnVideo, deleteVideo, feedController, getAllVideos, getVideoById, incrementViewCount, likeVideo, uploadVideo } from "../controllers/video.controller";
 import isAdmin from "../middlewares/isAdmin";
 import isLoggedInUser from "../middlewares/isLoggedInUser";
 
-const videoRouter = express();
+const videoRouter = express.Router();
 
 videoRouter.post(
   "/upload",
@@ -20,6 +20,8 @@ videoRouter.post(
 
 
 videoRouter.get("/", getAllVideos);
+videoRouter.get("/feed", isLoggedInUser, feedController)
+
 videoRouter.get("/:videoId", getVideoById);
 
 // videoRouter.put(
@@ -34,9 +36,11 @@ videoRouter.get("/:videoId", getVideoById);
 //   updateVideo
 // );
 
+
 videoRouter.delete("/:videoId", isAdmin, deleteVideo);
 videoRouter.post("/:videoId/view", isLoggedInUser, incrementViewCount);
 videoRouter.post("/:videoId/like", isLoggedInUser, likeVideo);
 videoRouter.post("/:videoId/comment", isLoggedInUser, commentOnVideo);
+
 
 export default videoRouter;

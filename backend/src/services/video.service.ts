@@ -395,28 +395,69 @@ export const getPersonalizedFeed = async (userId: string) => {
       comments: true,
     },
   });
+
+  if (!user) {
+    return [];
+  }
+
+  const interactionCount =
+    user.likes.length + user.comments.length;
+
+  // =========================
+  // COLD START / LOW DATA
+  // =========================
+  if (!user.embedding || interactionCount < 5) {
+    const trendingVideos = await prisma.video.findMany({
+      where: {
+        isPublished: true,
+      },
+      include: {
+        likes: true,
+        comments: true,
+      },
+      orderBy: {
+        views: "desc",
+      },
+      take: 20,
+    });
+
+    return trendingVideos;
+  }
+
+  // =========================
+  // PERSONALIZED FEED
+  // =========================
+
   const insight = await prisma.userInsight.findUnique({
     where: {
       userId,
     },
   });
+
+  const likedVideoIds = user.likes.map(
+    (like) => like.videoId
+  );
+
   const videos = await prisma.video.findMany({
-    where: { isPublished: true },
+    where: {
+      isPublished: true,
+      id: {
+        notIn: likedVideoIds,
+      },
+    },
     include: {
       likes: true,
       comments: true,
     },
   });
 
-  // fallback for cold start
-  if (!user?.embedding) {
-    return videos.slice(0, 20);
-  }
-
-  const scored = videos.map((video) => {
+  const scoredVideos = videos.map((video) => {
     const similarity =
-      user.embedding && video.embedding
-        ? cosineSimilarity(user.embedding, video.embedding)
+      video.embedding?.length
+        ? cosineSimilarity(
+          user.embedding as number[],
+          video.embedding as number[]
+        )
         : 0;
 
     const engagement =
@@ -429,7 +470,8 @@ export const getPersonalizedFeed = async (userId: string) => {
     if (
       insight?.interests?.some(
         (interest) =>
-          interest.toLowerCase() === video.genre.toLowerCase()
+          interest.toLowerCase() ===
+          video.genre.toLowerCase()
       )
     ) {
       interestBoost = 20;
@@ -440,15 +482,20 @@ export const getPersonalizedFeed = async (userId: string) => {
       engagement * 0.2 +
       interestBoost;
 
-    return { ...video, score };
-
-
+    return {
+      ...video,
+      score,
+    };
   });
-  return scored
-    .sort((a: { score: number },
-      b: { score: number }) => b.score - a.score)
-    .slice(0, 20);
 
+  return scoredVideos
+    .sort(
+      (
+        a: { score: number },
+        b: { score: number }
+      ) => b.score - a.score
+    )
+    .slice(0, 20);
 };
 
 
