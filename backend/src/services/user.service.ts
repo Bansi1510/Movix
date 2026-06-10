@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "../config/db.config";
+import { Response } from "express";
 
 // =========================
 // CREATE USER
@@ -70,4 +71,13 @@ export const comparePasswordService = async (
   hashedPassword: string,
 ) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
+};
+export const logoutUserService = async (
+  res: Response
+) => {
+  res.clearCookie("admin_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
 };

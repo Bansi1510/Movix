@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import response from "../utils/resHandler";
 import { sendWelcomeEmail } from "../services/email.service";
 import {
@@ -6,6 +6,7 @@ import {
   findUserByEmailService,
   findUserByIdService,
   comparePasswordService,
+  logoutUserService,
 } from "../services/user.service";
 
 import { generateToken } from "../utils/jwt";
@@ -136,5 +137,22 @@ export const getProfile = async (req: Request, res: Response) => {
     console.log(error);
 
     return response(res, 500, "Server error");
+  }
+};
+export const logoutUserController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await logoutUserService(res);
+
+    return response(
+      res,
+      200,
+      "Logout successful"
+    );
+  } catch (error) {
+    next(error);
   }
 };

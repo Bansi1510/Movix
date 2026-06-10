@@ -22,7 +22,7 @@ const AuthProvider = ({
   console.log(data)
   useEffect(() => {
     if (isSuccess && data) {
-      dispatch(loginSuccess(data.user));
+      dispatch(loginSuccess(data));
       dispatch(setInitialized());
     }
 

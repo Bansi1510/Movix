@@ -1,7 +1,7 @@
 import fs from "fs";
 import cloudinary from "../config/cloudinary.config";
 import { prisma } from "../config/db.config";
-import { analyzeUserBehavior, getEmbedding } from "./ai.service";
+import { getEmbedding } from "./ai.service";
 import { cosineSimilarity } from "../utils/math";
 import { optimizeSEO } from "./ai.service";
 
@@ -68,12 +68,12 @@ export const createVideoService = async (
     });
   }
   const aiText = `
-title: ${title}
-description: ${description}
-genre: ${genre}
-tags: ${tags ? JSON.parse(tags).join(" ") : ""}
-language: ${language || ""}
-`;
+  title: ${title}
+  description: ${description}
+  genre: ${genre}
+  tags: ${tags ? JSON.parse(tags).join(" ") : ""}
+  language: ${language || ""}
+  `;
   const embedding = await getEmbedding(aiText);
 
   // delete local files
@@ -441,8 +441,13 @@ export const getPersonalizedFeed = async (userId: string) => {
       interestBoost;
 
     return { ...video, score };
-  });
 
+
+  });
+  return scored
+    .sort((a: { score: number },
+      b: { score: number }) => b.score - a.score)
+    .slice(0, 20);
 
 };
 
@@ -453,14 +458,14 @@ export const smartSearchVideos = async (text: string) => {
 
   // 2. Vector search (REAL AI)
   const videos = await prisma.$queryRaw`
-   SELECT *,
-1 - (embedding <=> ${queryEmbedding}::vector) as similarity
-FROM "Video"
-WHERE "isPublished" = true
-AND embedding IS NOT NULL
-ORDER BY similarity DESC
-LIMIT 20;
-  `;
+    SELECT *,
+  1 - (embedding <=> ${queryEmbedding}::vector) as similarity
+  FROM "Video"
+  WHERE "isPublished" = true
+  AND embedding IS NOT NULL
+  ORDER BY similarity DESC
+  LIMIT 20;
+    `;
 
   return videos;
 };
