@@ -87,10 +87,8 @@ const AddVideo = () => {
       JSON.stringify(values.tags.split(","))
     );
 
-    formData.append(
-      "genre",
-      JSON.stringify(values.genre.split(","))
-    ); formData.append("type", values.type);
+    formData.append("genre", values.genre);
+    formData.append("type", values.type);
     formData.append("price", String(Number(values.price || "0")));
     formData.append("hasAds", String(values.hasAds));
     formData.append("downloadable", String(values.downloadable));

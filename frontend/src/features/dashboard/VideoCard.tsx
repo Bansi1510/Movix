@@ -13,6 +13,7 @@ import {
   Badge,
 } from "@/components/ui/badge";
 import { Video } from "@/types/video.types";
+import { useNavigate } from "react-router-dom";
 
 interface VideoCardProps {
   video: Video;
@@ -21,8 +22,11 @@ interface VideoCardProps {
 const VideoCard = ({
   video,
 }: VideoCardProps) => {
+  console.log(video)
+  const navigate = useNavigate();
   return (
-    <Card className="group overflow-hidden transition-all hover:shadow-lg">
+    <Card onClick={() => navigate(`/watch/${video.id}`)}
+      className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg">
       <div className="relative overflow-hidden">
         <img
           src={video.thumbnail}

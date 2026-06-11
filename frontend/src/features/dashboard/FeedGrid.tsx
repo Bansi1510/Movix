@@ -1,8 +1,9 @@
+import { Video } from "@/types/video.types";
 import VideoCard from "./VideoCard";
 
 
 interface FeedGridProps {
-  videos: any[];
+  videos: Video[];
 }
 
 const FeedGrid = ({

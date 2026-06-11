@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import Dashboard from "@/pages/Dashboard";
 import SignUp from "@/features/auth/SignUp";
+import WatchVideoPage from "@/pages/WatchVideoPage";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Dashboard />,
       },
+      {
+        path: "/watch/:videoId",
+        element: <WatchVideoPage />
+      }
     ],
   },
 ]);
