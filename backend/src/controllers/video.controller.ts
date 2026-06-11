@@ -211,6 +211,7 @@ export const incrementViewCount = async (req: Request, res: Response) => {
 };
 
 export const feedController = async (req: Request, res: Response) => {
+  console.log("hello")
   try {
     const userId = req.user.id as string;
 
