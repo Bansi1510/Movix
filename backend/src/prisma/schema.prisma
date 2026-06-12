@@ -179,12 +179,19 @@ model Like {
 }
 
 model WatchHistory {
-  id        String   @id @default(cuid())
-  userId    String
-  videoId   String
+  id String @id @default(cuid())
+
+  userId  String
+  videoId String
+
   watchTime Int
-  completed Boolean  @default(false)
+  completed Boolean @default(false)
+
+  viewCounted Boolean @default(false)
+
   createdAt DateTime @default(now())
+
+  @@unique([userId, videoId])
 }
 
 model UserInsight {

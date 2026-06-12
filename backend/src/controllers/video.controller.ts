@@ -13,6 +13,7 @@ import {
   findExistingLikeService,
   getPersonalizedFeed,
   smartSearchVideos,
+  getVideoCommentsService,
 } from "../services/video.service";
 import { adminNamespace, userNamespace } from "../sockets/socket.handler";
 import { updateUserEmbedding } from "../services/userEmedding.service";
@@ -76,14 +77,17 @@ export const getAllVideos = async (req: Request, res: Response) => {
 export const getVideoById = async (req: Request, res: Response) => {
   try {
     const { videoId } = req.params;
+    const userId = req.user?.id;
     const vId = videoId as string;
-    const video = await getVideoByIdService(vId);
+    const video = await getVideoByIdService(vId, userId);
 
     if (!video) {
       return response(res, 404, "Video not found");
     }
-
-    return response(res, 200, "", video);
+    return response(res, 200, "", {
+      ...video,
+      isLiked: video.likes.length > 0,
+    });
   } catch (error) {
     console.log(error);
     return response(res, 500, "Server error");
@@ -163,7 +167,7 @@ export const commentOnVideo = async (req: Request, res: Response) => {
     const { videoId } = req.params;
     const { message } = req.body;
     const vId = videoId as string;
-
+    console.log("hello")
     if (!userId) {
       return response(res, 401, "Unauthorized");
     }
@@ -189,24 +193,54 @@ export const commentOnVideo = async (req: Request, res: Response) => {
 // INCREMENT VIEW
 // =========================
 
-export const incrementViewCount = async (req: Request, res: Response) => {
+export const incrementViewCount = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { videoId } = req.params;
-    const vId = videoId as string;
+    const vId = videoId as string
     const userId = req.user.id as string;
-    const updatedVideo = await incrementViewService(vId);
-    await updateUserEmbedding(userId);
-    userNamespace.to(`video:${videoId}`).emit("view_updated", {
-      videoId,
-      views: updatedVideo.views,
-    });
-    return response(res, 200, "View updated", {
-      views: updatedVideo.views,
-    });
 
+    const updatedVideo =
+      await incrementViewService(
+        vId,
+        userId
+      );
+
+    if (!updatedVideo) {
+      return response(
+        res,
+        200,
+        "View already counted"
+      );
+    }
+
+    await updateUserEmbedding(userId);
+
+    userNamespace
+      .to(`video:${videoId}`)
+      .emit("view_updated", {
+        videoId,
+        views: updatedVideo.views,
+      });
+
+    return response(
+      res,
+      200,
+      "View updated",
+      {
+        views: updatedVideo.views,
+      }
+    );
   } catch (error) {
     console.log(error);
-    return response(res, 500, "Server error");
+
+    return response(
+      res,
+      500,
+      "Server error"
+    );
   }
 };
 
@@ -244,5 +278,27 @@ export const searchController = async (req: Request, res: Response) => {
       success: false,
       message: "Search failed",
     });
+  }
+};
+
+export const getVideoComments = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { videoId } = req.params;
+    const vId = videoId as string
+    const comments =
+      await getVideoCommentsService(vId);
+
+    return response(
+      res,
+      200,
+      "Comments fetched",
+      comments
+    );
+  } catch (error) {
+    console.log(error);
+    return response(res, 500, "Server error");
   }
 };

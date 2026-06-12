@@ -1,6 +1,6 @@
 import express from "express"
 import { upload } from "../middlewares/multer.middleware";
-import { commentOnVideo, deleteVideo, feedController, getAllVideos, getVideoById, incrementViewCount, likeVideo, uploadVideo } from "../controllers/video.controller";
+import { commentOnVideo, deleteVideo, feedController, getAllVideos, getVideoById, getVideoComments, incrementViewCount, likeVideo, uploadVideo } from "../controllers/video.controller";
 import isAdmin from "../middlewares/isAdmin";
 import isLoggedInUser from "../middlewares/isLoggedInUser";
 
@@ -22,7 +22,7 @@ videoRouter.post(
 videoRouter.get("/", getAllVideos);
 videoRouter.get("/feed", isLoggedInUser, feedController)
 
-videoRouter.get("/:videoId", getVideoById);
+videoRouter.get("/:videoId", isLoggedInUser, getVideoById);
 
 // videoRouter.put(
 //   "/:videoId",
@@ -38,9 +38,9 @@ videoRouter.get("/:videoId", getVideoById);
 
 
 videoRouter.delete("/:videoId", isAdmin, deleteVideo);
-videoRouter.post("/:videoId/view", isLoggedInUser, incrementViewCount);
+videoRouter.patch("/:videoId/view", isLoggedInUser, incrementViewCount);
 videoRouter.post("/:videoId/like", isLoggedInUser, likeVideo);
 videoRouter.post("/:videoId/comment", isLoggedInUser, commentOnVideo);
-
+videoRouter.get("/:videoId/comments", isLoggedInUser, getVideoComments)
 
 export default videoRouter;

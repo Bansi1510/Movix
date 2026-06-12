@@ -23,9 +23,12 @@ export interface Video {
 
   downloadable: boolean;
   hasAds: boolean;
-
+  isLiked: boolean;
   createdAt: string;
-
+  _count: {
+    likes: number;
+    comments: number;
+  };
   likes: unknown[];
   comments: unknown[];
 }

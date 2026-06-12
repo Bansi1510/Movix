@@ -26,7 +26,7 @@ const WatchVideoPage = () => {
   return (
     <div className="container mx-auto max-w-5xl p-6">
 
-      <VideoPlayer videoUrl={video.videoUrl} />
+      <VideoPlayer videoId={videoId!} videoUrl={video.videoUrl} />
 
       <VideoInfo video={video} />
 

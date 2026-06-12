@@ -218,7 +218,10 @@ export const getAllVideosService = async (query: any) => {
 // GET VIDEO BY ID
 // =========================
 
-export const getVideoByIdService = async (videoId: string) => {
+export const getVideoByIdService = async (
+  videoId: string,
+  userId?: string
+) => {
   return await prisma.video.findUnique({
     where: {
       id: videoId,
@@ -228,26 +231,29 @@ export const getVideoByIdService = async (videoId: string) => {
       id: true,
       title: true,
       description: true,
-
       thumbnail: true,
       bannerImage: true,
-
       videoPublicId: true,
       videoUrl: true,
-
       genre: true,
       language: true,
-
       tags: true,
-
       duration: true,
-
       type: true,
       price: true,
-
       views: true,
-
       createdAt: true,
+
+      likes: userId
+        ? {
+          where: {
+            userId,
+          },
+          select: {
+            id: true,
+          },
+        }
+        : false,
 
       _count: {
         select: {
@@ -352,12 +358,46 @@ export const commentOnVideoService = async (
 // INCREMENT VIEW
 // =========================
 
-export const incrementViewService = async (videoId: string) => {
-  return await prisma.video.update({
+export const incrementViewService = async (
+  videoId: string,
+  userId: string
+) => {
+  const history =
+    await prisma.watchHistory.findUnique({
+      where: {
+        userId_videoId: {
+          userId,
+          videoId,
+        },
+      },
+    });
+
+  if (history?.viewCounted) {
+    return null;
+  }
+
+  await prisma.watchHistory.upsert({
+    where: {
+      userId_videoId: {
+        userId,
+        videoId,
+      },
+    },
+    update: {
+      viewCounted: true,
+    },
+    create: {
+      userId,
+      videoId,
+      watchTime: 0,
+      viewCounted: true,
+    },
+  });
+
+  return prisma.video.update({
     where: {
       id: videoId,
     },
-
     data: {
       views: {
         increment: 1,
@@ -520,4 +560,30 @@ export const smartSearchVideos = async (text: string) => {
     `;
 
   return videos;
+};
+
+export const getVideoCommentsService = async (
+  videoId: string
+) => {
+  return await prisma.comment.findMany({
+    where: {
+      videoId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      message: true,
+      createdAt: true,
+
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
 };
