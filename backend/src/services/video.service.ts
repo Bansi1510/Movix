@@ -226,10 +226,8 @@ export const getVideoByIdService = async (videoId: string) => {
 
     select: {
       id: true,
-
       title: true,
       description: true,
-
 
       thumbnail: true,
       bannerImage: true,
@@ -250,6 +248,13 @@ export const getVideoByIdService = async (videoId: string) => {
       views: true,
 
       createdAt: true,
+
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+        },
+      },
 
       uploadedBy: {
         select: {
