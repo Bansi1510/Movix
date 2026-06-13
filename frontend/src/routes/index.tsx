@@ -7,6 +7,7 @@ import PublicRoute from "./PublicRoute";
 import Dashboard from "@/pages/Dashboard";
 import SignUp from "@/features/auth/SignUp";
 import WatchVideoPage from "@/pages/WatchVideoPage";
+import PaymentPage from "@/pages/PaymentPage";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: "/watch/:videoId",
         element: <WatchVideoPage />
+      },
+      {
+        path: "/payment/:videoId",
+        element: <PaymentPage />
       }
     ],
   },

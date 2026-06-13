@@ -117,6 +117,23 @@ export const verifyPaymentService = async (
 
   return purchase;
 };
+export const checkVideoAccessService = async (
+  userId: string,
+  videoId: string
+) => {
+  const purchase = await prisma.purchase.findFirst({
+    where: {
+      userId,
+      videoId,
+      status: "SUCCESS",
+    },
+  });
+
+  return {
+    canWatch: !!purchase,
+    purchased: !!purchase,
+  };
+};
 
 export const getUserPurchasesService = async (userId: string) => {
   return prisma.purchase.findMany({

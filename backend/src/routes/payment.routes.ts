@@ -9,6 +9,7 @@ import {
   getPaymentDetails,
   handlePaymentFailed,
   refundPayment,
+  checkVideoAccess,
 } from "../controllers/payment.controller";
 import isLoggedInUser from "../middlewares/isLoggedInUser";
 import isAdmin from "../middlewares/isAdmin";
@@ -24,6 +25,12 @@ paymentRouter.get("/my-purchases", isLoggedInUser, getUserPurchases);
 paymentRouter.get("/check/:videoId", isLoggedInUser, getPurchaseByVideo);
 
 paymentRouter.get("/:purchaseId", isLoggedInUser, getPaymentDetails);
+
+paymentRouter.get(
+  "/access/:videoId",
+  isLoggedInUser,
+  checkVideoAccess
+);
 
 paymentRouter.get("/admin/all", isAdmin, getAllPayments);
 
