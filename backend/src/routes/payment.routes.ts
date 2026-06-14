@@ -16,7 +16,7 @@ import isAdmin from "../middlewares/isAdmin";
 
 const paymentRouter = Router();
 
-paymentRouter.post("/create-order", createOrder);
+paymentRouter.post("/create-order", isLoggedInUser, createOrder);
 
 paymentRouter.post("/verify", verifyPayment);
 

@@ -6,6 +6,7 @@ import PaymentHeader from "@/features/payment/PaymentHeader";
 import VideoPaymentCard from "@/features/payment/VideoPaymentCard";
 import PaymentMethods from "@/features/payment/PaymentMethods";
 import { useCreateOrder } from "@/hooks/useCreateOrder";
+import { loadRazorpay } from "@/lib/loadRazorpay";
 
 const PaymentPage = () => {
   const { videoId } = useParams();
@@ -20,12 +21,48 @@ const PaymentPage = () => {
 
   const handlePayment = () => {
     createOrderMutation.mutate(video.id, {
-      onSuccess: (data) => {
-        console.log(data);
+      onSuccess: async (data) => {
+        const loaded =
+          await loadRazorpay();
+
+        if (!loaded) {
+          alert(
+            "Failed to load Razorpay",
+          );
+          return;
+        }
+
+        const options = {
+          key: import.meta.env
+            .VITE_RAZORPAY_KEY_ID,
+
+          amount: data.order.amount,
+
+          currency:
+            data.order.currency,
+
+          order_id: data.order.id,
+
+          name: "Movix",
+
+          description: video.title,
+
+          handler: (
+            response: any,
+          ) => {
+            console.log(response);
+
+            // call verify payment API here
+          },
+        };
+
+        const razorpay =
+          new window.Razorpay(options);
+
+        razorpay.open();
       },
     });
   };
-
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
