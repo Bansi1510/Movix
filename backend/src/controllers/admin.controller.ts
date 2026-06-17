@@ -14,14 +14,14 @@ export const loginAdmin = async (
 ) => {
   try {
     const { email, password } = req.body;
-
+    console.log(email, password)
     const { token, admin } = await loginAdminService(
       email,
       password
     );
 
     console.log("🔐 Setting cookie with token:", token.substring(0, 20) + "...");
-    
+
     res.cookie("admin_token", token, {
       httpOnly: true,
       secure: false,

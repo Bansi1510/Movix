@@ -13,7 +13,7 @@ const AuthProvider = ({
 }) => {
   const dispatch = useDispatch();
 
-  const { data, isSuccess, isError } = useCheckAuth();
+  const { data, isSuccess, isError } = useCheckAuth(true);
 
   useEffect(() => {
     if (isSuccess && data?.data?.authenticated) {

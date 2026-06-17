@@ -75,7 +75,7 @@ export const comparePasswordService = async (
 export const logoutUserService = async (
   res: Response
 ) => {
-  res.clearCookie("admin_token", {
+  res.clearCookie("user_token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

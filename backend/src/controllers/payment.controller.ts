@@ -11,6 +11,7 @@ import {
   getPaymentDetailsService,
   handlePaymentFailedService,
   refundPaymentService,
+  checkVideoAccessService,
 } from "../services/payment.service";
 import { adminNamespace, userNamespace } from "../sockets/socket.handler";
 
@@ -80,6 +81,30 @@ export const getUserPurchases = async (req: Request, res: Response) => {
     }
 
     return response(res, 500, "Server Error");
+  }
+};
+
+export const checkVideoAccess = async (req: Request, res: Response) => {
+  try {
+    if (!req.user?.id) {
+      return response(res, 401, "Not authenticated");
+    }
+
+    const { videoId } = req.params;
+    const vId = videoId as string
+    const data = await checkVideoAccessService(
+      req.user.id,
+      vId
+    );
+
+    return response(
+      res,
+      200,
+      "Access checked successfully",
+      data
+    );
+  } catch (error: any) {
+    return response(res, 500, error.message || "Server Error");
   }
 };
 

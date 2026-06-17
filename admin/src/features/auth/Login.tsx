@@ -42,9 +42,7 @@ const Login = () => {
     console.log(values);
     loginMutation.mutate(values, {
       onSuccess: (data) => {
-        dispatch(
-          setCredentials(data.admin)
-        );
+        dispatch(setCredentials(data.admin))
         toast.success(data.message)
         navigate("/dashboard");
       },
