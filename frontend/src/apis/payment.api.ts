@@ -20,3 +20,12 @@ export const createOrder = async (
 
   return data.data;
 };
+
+export const getMyPurchase = async () => {
+  const { data } =
+    await api.get(
+      "/api/payment/my-purchases"
+    );
+
+  return data.data;
+}

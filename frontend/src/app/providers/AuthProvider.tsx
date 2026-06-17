@@ -20,6 +20,7 @@ const AuthProvider = ({
     isError,
   } = useProfile();
   console.log(data)
+  console.log(data)
   useEffect(() => {
     if (isSuccess && data) {
       dispatch(loginSuccess(data));

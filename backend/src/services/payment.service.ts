@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../config/db.config";
 import razorpay from "../config/razorpay";
+import { VideoType } from "@prisma/client";
 
 export const createOrderService = async (videoId: string, userId: string) => {
   if (!videoId || !userId) {
@@ -121,11 +122,36 @@ export const checkVideoAccessService = async (
   userId: string,
   videoId: string
 ) => {
+  const video = await prisma.video.findUnique({
+    where: {
+      id: videoId,
+    },
+    select: {
+      type: true,
+    },
+  });
+
+  if (!video) {
+    throw new Error("Video not found");
+  }
+
+  // Free video
+  if (video.type === VideoType.FREE) {
+    return {
+      canWatch: true,
+      purchased: false,
+    };
+  }
+
+  // Premium video
   const purchase = await prisma.purchase.findFirst({
     where: {
       userId,
       videoId,
       status: "SUCCESS",
+    },
+    select: {
+      id: true,
     },
   });
 
@@ -134,7 +160,6 @@ export const checkVideoAccessService = async (
     purchased: !!purchase,
   };
 };
-
 export const getUserPurchasesService = async (userId: string) => {
   return prisma.purchase.findMany({
     where: {

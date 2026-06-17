@@ -23,7 +23,7 @@ const VideoCard = ({ video }: VideoCardProps) => {
   const handleClick = async () => {
     try {
       const res = await checkVideoAccessApi(video.id);
-
+      console.log(res.data)
       if (res.data.canWatch) {
         navigate(`/watch/${video.id}`);
       } else {
